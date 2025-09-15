@@ -35,7 +35,7 @@ export interface IPersonalInfo {
     contact: IContract,
     gender: IGender,
     financialData: IFinancialData,
-    status: "Pending" | "Profile Completed" | "Score Generated";
+    status: string;
     creditScore?: number;
     suggestedCreditLimit?: number;
     recentActivity?: {
