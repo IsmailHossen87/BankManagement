@@ -29,12 +29,12 @@ export interface IFinancialData {
     loanAmount?: number;
 }
 export interface IApprovalDetails {
-    loanAmount:string,
-    interestateRate:string,
+    loanAmount:number,
+    interestateRate:number,
     termMonths:string,
     description:string
-
 }
+
 export interface IPersonalInfo {
     userId?: Types.ObjectId,
     personalData: IPersonalData,
@@ -48,5 +48,6 @@ export interface IPersonalInfo {
         action: string;
         date: Date;
     }[];
+    approvalDetails?:IApprovalDetails
 
 }
