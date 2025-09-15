@@ -161,6 +161,26 @@ const updateLoanAmount = async (userId: string, loanAmount: number) => {
 
   return updatedInfo;
 };
+// status Update
+const updateStatus = async (userId: string, infoId: string, status: string) => {
+  // check if user exists
+  const userInfo = await User.findById(userId);
+  if (!userInfo) {
+    throw new AppError(httpStatus.NOT_FOUND, "Invalid user");
+  }
+
+  const updatedInfo = await PersonalData.findByIdAndUpdate(
+    infoId,
+    { $set: { status } },
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedInfo) {
+    throw new AppError(httpStatus.NOT_FOUND, "Personal Data not found for this ID");
+  }
+
+  return updatedInfo;
+};
 
 
 
@@ -179,5 +199,5 @@ const updateInformaiton = async (userId: string, payload: Partial<IPersonalInfo>
 
 
 export const personalInfoService = {
-  personalInformation, updateInformaiton, updateLoanAmount, getSingleInformation, getAllInformation
+  personalInformation, updateInformaiton, updateLoanAmount, getSingleInformation, getAllInformation,updateStatus
 };
