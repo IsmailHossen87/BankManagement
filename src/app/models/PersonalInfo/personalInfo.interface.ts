@@ -28,7 +28,13 @@ export interface IFinancialData {
     existingLoan: boolean;
     loanAmount?: number;
 }
+export interface IApprovalDetails {
+    loanAmount:string,
+    interestateRate:string,
+    termMonths:string,
+    description:string
 
+}
 export interface IPersonalInfo {
     userId?: Types.ObjectId,
     personalData: IPersonalData,
