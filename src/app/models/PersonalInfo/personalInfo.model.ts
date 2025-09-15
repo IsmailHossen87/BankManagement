@@ -28,7 +28,7 @@ const UserProfileSchema = new Schema<IPersonalInfo>({
         suggestedCreditLimit: { type: Number, default: null },
         status: {
             type: String,
-            enum: ["Pending", "Profile Completed", "Score Generated"],
+            default:""
         },
        
     },

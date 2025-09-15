@@ -6,30 +6,29 @@ import { JwtPayload } from "jsonwebtoken"
 import AppError from "../../errorHelper/AppError";
 import { envVar } from "../../config/env";
 import { createNewAccessTokenWithRefreshToken } from "../../utils/userToken";
+import jwt from "jsonwebtoken"
+import { sendEmail } from "../../utils/sendEmail";
 
 
 // 🔄 Get a new access token using a valid refresh token
 const getNewAccessToken = async (refreshToken: string) => {
-   const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken);
-   return {
-      accessToken: newAccessToken
-   }
+    const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken);
+    return {
+        accessToken: newAccessToken
+    }
 }
-
-
-
 
 // 🔐 Change Password: Requires old password and new password
 const changePassword = async (oldPassword: string, newPassword: string, docodedToken: JwtPayload) => {
-   const user = await User.findById(docodedToken.userId);
-   const isOldPasswordMatch = await bcryptjs.compare(oldPassword, user!.password as string);
-   if (!isOldPasswordMatch) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "Old Password doed not match");
-   }
+    const user = await User.findById(docodedToken.userId);
+    const isOldPasswordMatch = await bcryptjs.compare(oldPassword, user!.password as string);
+    if (!isOldPasswordMatch) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Old Password doed not match");
+    }
 
-   // 🔄 Hash and update the new password
-   user!.password = await bcryptjs.hash(newPassword, Number(envVar.BCRYPT_SALT_ROUND));
-   user!.save();
+    // 🔄 Hash and update the new password
+    user!.password = await bcryptjs.hash(newPassword, Number(envVar.BCRYPT_SALT_ROUND));
+    user!.save();
 }
 
 
@@ -37,87 +36,59 @@ const changePassword = async (oldPassword: string, newPassword: string, docodedT
 
 
 // 🔁 Reset Password from a reset link (token based)
-// const resetPassword = async (payload: Record<string, any>, decodedToken: JwtPayload) => {
-//    if (payload.id != decodedToken.userId) {
-//       throw new AppError(401, "You can not reset your password");
-//    }
+const resetPassword = async (payload: Record<string, any>, decodedToken: JwtPayload) => {
+   if (payload.id != decodedToken.userId) {
+      throw new AppError(401, "You can not reset your password");
+   }
 
-//    const isUserExist = await User.findById(decodedToken.userId);
-//    if (!isUserExist) {
-//       throw new AppError(401, "User does not exist");
-//    }
+   const isUserExist = await User.findById(decodedToken.userId);
+   if (!isUserExist) {
+      throw new AppError(401, "User does not exist");
+   }
 
-//    // 🔄 Hash and set new password
-//    const hashedPassword = await bcryptjs.hash(payload.newPassword, Number(envVars.BCRYPT_SALT_ROUTD));
-//    isUserExist.password = hashedPassword;
-//    await isUserExist.save();
-// }
+   // 🔄 Hash and set new password
+   const hashedPassword = await bcryptjs.hash(payload.newPassword, Number(envVar.BCRYPT_SALT_ROUND));
+   isUserExist.password = hashedPassword;
+   await isUserExist.save();
+}
 
-// 🔐 Set initial password for Google signup users
-// const setPassword = async (userId: string, plainPassword: string) => {
-//    const user = await User.findById(userId);
-//    if (!user) {
-//       throw new AppError(404, "User not found");
-//    }
+// forgetPassword
+const forgotPassword = async (email: string) => {
+    const isUserExist = await User.findOne({ email });
 
-//    // 🚫 Prevent setting password if already set via Google
-//    if (user.password && user.auths.some(providerObject => providerObject.provider === "google")) {
-//       throw new AppError(400, "You have already set your password. Now you can change it from the password update option.");
-//    }
+    if (!isUserExist) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist")
+    }
 
-//    const hashedPassword = await bcryptjs.hash(plainPassword, Number(envVars.BCRYPT_SALT_ROUTD));
+    const jwtPayload = {
+        userId: isUserExist._id,
+        email: isUserExist.email,
+        role: isUserExist.role
+    }
 
-//    // ➕ Create credential provider and attach to user
-//    const credentialProvider: IAuthProvider = { provider: "credentials", providerId: user.email };
-//    const auths: IAuthProvider[] = [...user.auths, credentialProvider];
+    const resetToken = jwt.sign(jwtPayload, envVar.JWT_ACCESS_SECRET, {
+        expiresIn: "10m"
+    })
 
-//    // 💾 Update user info
-//    user.password = hashedPassword;
-//    user.auths = auths;
-//    await user.save();
-// };
+    const resetUILink = `${envVar.FRONTEND_URL}/reset-password?id=${isUserExist._id}&token=${resetToken}`
 
-// 📧 Forgot Password: Validates and sends email with reset link
-// const forgotPassword = async (email: string) => {
-//    const isUserExites = await User.findOne({ email });
+    sendEmail({
+        to: isUserExist.email,
+        subject: "Password Reset",
+        templateName: "otp",
+        templateData: {
+            name: isUserExist.role,
+            resetUILink
+        }
+    })
+}
 
-//    if (!isUserExites) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "User  does not Exit");
-//    }
-//    if (isUserExites.isActive === IsActive.BLOCKED || isUserExites.isActive === IsActive.INACTIVE) {
-//       throw new AppError(httpStatus.BAD_REQUEST, `User is ${isUserExites.isActive}`);
-//    }
-//    if (isUserExites.isDeleted) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
-//    }
-//    if (!isUserExites.isVerified) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "User is not verified");
-//    }
 
-//    // ✅ All checks passed: generate token and send email
-//    const JwtPayload = {
-//       userId: isUserExites._id,
-//       email: isUserExites.email,
-//       role: isUserExites.role
-//    };
-
-//    const resetToken = jwt.sign(JwtPayload, envVars.JWT_ACCESS_SECRET, { expiresIn: "10m" });
-//    const resetUILink = `${envVars.FRONTEND_URL}/reset-password?id=${isUserExites._id}&token=${resetToken}`;
-
-//    // 📤 Send password reset email with template
-//    sendEmail({
-//       to: isUserExites.email,
-//       subject: "Password Reset",
-//       templateName: "forgetPassword",
-//       templateData: {
-//          name: isUserExites.name,
-//          resetUILink
-//       }
-//    });
-// }
 
 // 🔄 Export all Auth-related services
 export const AuthService = {
-   getNewAccessToken,
-   changePassword,
+    getNewAccessToken,
+    changePassword,
+    resetPassword,
+    forgotPassword
 };

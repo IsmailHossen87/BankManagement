@@ -44,6 +44,20 @@ const getAllInformation = catchAsync(async (req: Request, res: Response) => {
     data: result
   });
 });
+
+// LoadRequest 
+const loanRequest = catchAsync(async (req: Request, res: Response) => {
+  const jwtdata = req.user as JwtPayload  
+    const {loanAmount } = req.body;
+  const personalInfo = await personalInfoService.updateLoanAmount(jwtdata.userId,  loanAmount );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Your Loan Request Successfully",
+    data: personalInfo,
+  });
+});
 // Update Profile
 const updateInformaiton = catchAsync(async (req: Request, res: Response) => {
   const jwtdata = req.user as JwtPayload
@@ -59,5 +73,5 @@ const updateInformaiton = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const personalInfoControllers = {
-  createInformation, updateInformaiton, getSingleInformation, getAllInformation
+  createInformation, updateInformaiton, getSingleInformation,loanRequest, getAllInformation
 };

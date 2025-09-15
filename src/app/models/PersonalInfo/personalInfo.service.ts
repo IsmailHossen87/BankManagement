@@ -119,8 +119,8 @@ const getAllInformation = async (jwtInfo: JwtPayload, query: Record<string, stri
   // const allPersonalInfo = await PersonalData.find()
   const queryBuilder = new QueryBuilder(PersonalData.find(), query)
 
-  const tours =await queryBuilder
-  .search(infoSearchableFields)
+  const tours = await queryBuilder
+    .search(infoSearchableFields)
     .filter()
     .sort()
     .fields()
@@ -134,6 +134,34 @@ const getAllInformation = async (jwtInfo: JwtPayload, query: Record<string, stri
   };
 
 };
+
+
+// update LoanAmount
+const updateLoanAmount = async (userId: string, loanAmount: number) => {
+
+  const userInfo = await User.findById(userId);
+  if (!userInfo) {
+    throw new AppError(httpStatus.NOT_FOUND, "You are not a valid User");
+  }
+
+  const personalInfo = await PersonalData.findOne({ userId });
+  if (!personalInfo) {
+    throw new AppError(httpStatus.NOT_FOUND, "Personal Data not found for this user");
+  }
+  const updatedInfo = await PersonalData.findOneAndUpdate(
+    { userId },
+    {
+      $set: {
+        "financialData.loanAmount": loanAmount,
+        status: "pernding"
+      }
+    },
+    { new: true, runValidators: true }
+  );
+
+  return updatedInfo;
+};
+
 
 
 // update PersonalInformation
@@ -151,5 +179,5 @@ const updateInformaiton = async (userId: string, payload: Partial<IPersonalInfo>
 
 
 export const personalInfoService = {
-  personalInformation, updateInformaiton, getSingleInformation, getAllInformation
+  personalInformation, updateInformaiton, updateLoanAmount, getSingleInformation, getAllInformation
 };
