@@ -34,7 +34,7 @@ const getAllInformation = catchAsync(async (req: Request, res: Response) => {
   const jwtdata = req.user as JwtPayload;
   const query = req.query as Record<string, string>;
 
-  const result = await personalInfoService.getAllInformation(jwtdata,query);
+  const result = await personalInfoService.getAllInformation(jwtdata, query);
 
   sendResponse(res, {
     success: true,
@@ -47,15 +47,30 @@ const getAllInformation = catchAsync(async (req: Request, res: Response) => {
 
 // LoadRequest 
 const loanRequest = catchAsync(async (req: Request, res: Response) => {
-  const jwtdata = req.user as JwtPayload  
-    const {loanAmount } = req.body;
-  const personalInfo = await personalInfoService.updateLoanAmount(jwtdata.userId,  loanAmount );
-
+  const jwtdata = req.user as JwtPayload
+  const { loanAmount } = req.body;
+  const personalInfo = await personalInfoService.updateLoanAmount(jwtdata.userId, loanAmount);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
     message: "Your Loan Request Successfully",
     data: personalInfo,
+  });
+});
+// 2️⃣ Admin/manual: change status to approved/rejected
+const changeStatus = catchAsync(async (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userId = (req.user as any).userId;
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const updatedInfo = await personalInfoService.updateStatus(userId, id, status);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Status updated to ${status}`,
+    data: updatedInfo
   });
 });
 // Update Profile
@@ -73,5 +88,5 @@ const updateInformaiton = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const personalInfoControllers = {
-  createInformation, updateInformaiton, getSingleInformation,loanRequest, getAllInformation
+  createInformation, updateInformaiton, getSingleInformation, changeStatus, loanRequest, getAllInformation
 };
