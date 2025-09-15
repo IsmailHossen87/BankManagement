@@ -30,6 +30,12 @@ const UserProfileSchema = new Schema<IPersonalInfo>({
             type: String,
             default:""
         },
+        approvalDetails:{
+            loanAmount:{type:Number,default:0},
+            interestateRate:{type:Number,defaule:0},
+            termMonths:{type:String,default:""},
+            description:{type:String,default:""}
+        }
        
     },
     { timestamps: true ,versionKey:false}
