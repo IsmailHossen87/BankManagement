@@ -65,8 +65,8 @@ const calculateCreditScore = (
   };
 };
 
-const personalInformation = async (payload: Partial<IPersonalInfo>) => {
-  const isUserExist = await User.findById(payload?.userId);
+const personalInformation = async (payload: Partial<IPersonalInfo>, userId: string) => {
+  const isUserExist = await User.findById(userId);
 
   if (!isUserExist) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
@@ -89,8 +89,9 @@ const personalInformation = async (payload: Partial<IPersonalInfo>) => {
 
   payload.creditScore = score;
 
+
   // DB তে সেভ
-  const result = await PersonalData.create(payload);
+  const result = await PersonalData.create({ userId, ...payload });
   return result;
 };
 
@@ -161,6 +162,31 @@ const updateLoanAmount = async (userId: string, loanAmount: number) => {
 
   return updatedInfo;
 };
+// update ApprovalRequest
+const approvalDetails = async (personalId: string, payload: any) => {
+
+  const personalInfo = await PersonalData.findById(personalId);
+  if (!personalInfo) {
+    throw new AppError(httpStatus.NOT_FOUND, "Personal Data not found");
+  }
+
+
+  const updatedInfo = await PersonalData.findByIdAndUpdate(
+    personalId ,
+    {
+     $set: {
+        approvalDetails: {
+          loanAmount: payload.loanAmount,
+          termMonths: payload.termMonths,
+          description: payload.description,
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
+  return updatedInfo;
+};
+
 // status Update
 const updateStatus = async (userId: string, infoId: string, status: string) => {
   // check if user exists
@@ -199,5 +225,5 @@ const updateInformaiton = async (userId: string, payload: Partial<IPersonalInfo>
 
 
 export const personalInfoService = {
-  personalInformation, updateInformaiton, updateLoanAmount, getSingleInformation, getAllInformation,updateStatus
+  personalInformation, updateInformaiton, updateLoanAmount, approvalDetails, getSingleInformation, getAllInformation, updateStatus
 };

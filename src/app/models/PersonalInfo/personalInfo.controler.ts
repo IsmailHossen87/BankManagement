@@ -7,8 +7,9 @@ import { personalInfoService } from "./personalInfo.service";
 import { JwtPayload } from "jsonwebtoken";
 
 // Create Profile
-const createInformation = catchAsync(async (req: Request, res: Response) => {
-  const personalInfo = await personalInfoService.personalInformation(req.body);
+const createInformation = catchAsync(async (req: Request, res: Response) => { 
+  const jwtInfo = req.user as JwtPayload
+  const personalInfo = await personalInfoService.personalInformation(req.body,jwtInfo.userId as string);
 
   sendResponse(res, {
     success: true,
@@ -57,6 +58,7 @@ const loanRequest = catchAsync(async (req: Request, res: Response) => {
     data: personalInfo,
   });
 });
+
 // 2️⃣ Admin/manual: change status to approved/rejected
 const changeStatus = catchAsync(async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +75,22 @@ const changeStatus = catchAsync(async (req: Request, res: Response) => {
     data: updatedInfo
   });
 });
+// 2️⃣ Admin/manual: change Approval Details 
+const approvalDetails = catchAsync(async (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+  const { id } = req.params;
+  const approvalData = req.body;
+  const updatedApproval = await personalInfoService.approvalDetails( id, approvalData);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Approval details updated successfully`,
+    data: updatedApproval
+  });
+});
+
 // Update Profile
 const updateInformaiton = catchAsync(async (req: Request, res: Response) => {
   const jwtdata = req.user as JwtPayload
@@ -88,5 +106,5 @@ const updateInformaiton = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const personalInfoControllers = {
-  createInformation, updateInformaiton, getSingleInformation, changeStatus, loanRequest, getAllInformation
+  createInformation, updateInformaiton, getSingleInformation, approvalDetails,changeStatus, loanRequest, getAllInformation
 };
