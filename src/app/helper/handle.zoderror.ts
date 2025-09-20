@@ -2,6 +2,7 @@ import { TErrorSources, TGenericResponse } from "../interface/error.type";
 
 
  
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
  export const handleZodError = (err: any): TGenericResponse => {
     const errorSources: TErrorSources[] = [];
 

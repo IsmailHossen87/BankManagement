@@ -1,10 +1,10 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import express, { Request, Response } from "express"
 import { globalErrorHandler } from "./app/middleware/globalErrorHandlare"
 import { notFound } from "./app/middleware/notFound"
 import { router } from "./app/routes/indes"
 import "./app/config/passport"
-import cors from "cors";
 import expressSession  from "express-session";
 import passport from "passport";
 import { envVar } from "./app/config/env";
@@ -17,13 +17,16 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: false
 }))
-
+app.use(cors({
+    origin: ["http://localhost:5173","https://bank-menagement-backend.vercel.app"],
+    credentials: true, 
+}))
 app.use(express.json())
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser())
 app.use("/api/v1", router)
-app.use(cors())
+
 
 
 app.get("/", (req: Request, res: Response) => {

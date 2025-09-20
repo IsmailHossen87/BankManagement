@@ -163,6 +163,7 @@ const updateLoanAmount = async (userId: string, loanAmount: number) => {
   return updatedInfo;
 };
 // update ApprovalRequest
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const approvalDetails = async (personalId: string, payload: any) => {
 
   const personalInfo = await PersonalData.findById(personalId);
