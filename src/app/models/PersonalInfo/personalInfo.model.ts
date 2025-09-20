@@ -21,14 +21,14 @@ const UserProfileSchema = new Schema<IPersonalInfo>({
             landOwnershipValue: { type: Number, default: 0 },
             electricityBill: { type: Number, default: 0 },
             mobileMoneyBalance: { type: Number, default: 0 },
-            existingLoan: { type: Boolean, default: false },
+            existingLoan: { type:   Number, default: 0 },
             loanAmount: { type: Number, default: 0 },
         },
         creditScore: { type: Number,  },
         suggestedCreditLimit: { type: Number, default: null },
         status: {
             type: String,
-            default:""
+            default:"Pending"
         },
         approvalDetails:{
             loanAmount:{type:Number,default:0},

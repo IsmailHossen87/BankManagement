@@ -21,10 +21,13 @@ const createUser = async (payload: Partial<IUser>) => {
     return user
 
 }
-// const  updateUser = async (payload: Partial<IUser>) => {
-   
-//     return user
 
-// }
+const getMe = async (userId: string) => { 
 
-export const UserService = { createUser }
+    const user = await User.findById({_id:userId}).select("-password");
+    return {
+        data: user
+    }
+};
+
+export const UserService = { createUser ,getMe}

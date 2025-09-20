@@ -3,6 +3,7 @@ import { TGenericResponse } from "../interface/error.type";
 
         
 export 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleCastError = (err: mongoose.Error.CastError): TGenericResponse => {
     return {
         statusCode: 400,

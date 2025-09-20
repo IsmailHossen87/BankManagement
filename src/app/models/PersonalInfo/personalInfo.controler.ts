@@ -49,7 +49,7 @@ const getAllInformation = catchAsync(async (req: Request, res: Response) => {
 // LoadRequest 
 const loanRequest = catchAsync(async (req: Request, res: Response) => {
   const jwtdata = req.user as JwtPayload
-  const { loanAmount } = req.body;
+  const { loanAmount } = req.body || {};
   const personalInfo = await personalInfoService.updateLoanAmount(jwtdata.userId, loanAmount);
   sendResponse(res, {
     success: true,

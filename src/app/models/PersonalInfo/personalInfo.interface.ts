@@ -15,8 +15,7 @@ export interface IContract {
 
 export interface IPersonalData {
     firstName: string;
-    lastName: string;
-    phone: string,
+    lastName: string; 
     dateofBirth: string;
     gender: IGender;
 }
@@ -25,8 +24,8 @@ export interface IFinancialData {
     landOwnershipValue: number;
     electricityBill: number;
     mobileMoneyBalance: number;
-    existingLoan: boolean;
-    loanAmount?: number;
+    existingLoan?: number;
+    loanRequest?:number
 }
 export interface IApprovalDetails {
     loanAmount:number,
@@ -39,7 +38,6 @@ export interface IPersonalInfo {
     userId?: Types.ObjectId,
     personalData: IPersonalData,
     contact: IContract,
-    gender: IGender,
     financialData: IFinancialData,
     status: string;
     creditScore?: number;
